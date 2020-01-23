@@ -1,0 +1,10 @@
+askap-cmake
+lofar-common
+lofar-blob
+base-askap
+base-logfilters
+base-imagemath
+base-askapparallel
+base-scimath
+base-accessors
+yandasoft

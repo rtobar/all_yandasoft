@@ -1,0 +1,191 @@
+#!/bin/bash
+
+error() {
+	echo "git-do: ERROR: $1" 1>&2
+}
+
+banner() {
+	msg="** $@ **"
+	echo "$msg" | sed -n '{h; x; s/./*/gp; x; h; p; x; s/./*/gp}';
+}
+
+_BITBUKET_URL=bitbucket.csiro.au
+
+repo_url() {
+	name=$1
+	method=$2
+	if [ "$method" = http ] || [ "$method" = https ]; then
+		echo "https://$_BITBUKET_URL/scm/askapsdp/$name.git"
+	elif [ "$method" = ssh ]; then
+		echo "git@$_BITBUKET_URL:7999/askapsdp/$name.git"
+	else
+		error "Unknown method: $method" && exit 1
+	fi
+}
+
+all_repo_urls() {
+	method=$1
+	while read repo_name; do
+		repo_url $repo_name $method
+	done < repos.txt
+}
+
+current_branch() {
+	git rev-parse --abbrev-ref HEAD
+}
+
+check_method() {
+	method=$1
+	# Check method is supported
+	if [ "$method" != http ] && [ "$method" != https ] && [ "$method" != ssh ]; then
+		error "Unknown method: $method" && exit 1
+	fi
+}
+
+###########################
+# Command implementations #
+###########################
+clone() {
+	branch=`current_branch`
+	method=http
+	while getopts "b:m:" opt; do
+		case "$opt" in
+			b)
+				branch="$OPTARG"
+				;;
+			m)
+				method="$OPTARG"
+				;;
+			*)
+				echo "Unsupported option: $opt"
+				print_usage_summary 1>&2
+				exit 1
+				;;
+		esac
+	done
+	check_method $method
+	banner "Clonning all repositories (branch: $branch, method: $method)"
+	for url in `all_repo_urls $method`; do
+		git clone --branch $branch $url
+	done
+}
+
+checkout() {
+	branch=`current_branch`
+	while getopts "b:" opt; do
+		case "$opt" in
+			b)
+				branch="$OPTARG"
+				;;
+			*)
+				echo "Unsupported option: $opt"
+				print_usage_summary 1>&2
+				exit 1
+				;;
+		esac
+	done
+	foreach git checkout $branch
+}
+
+pull() {
+	foreach git pull
+}
+
+status() {
+	foreach git status
+}
+
+foreach() {
+	action="$@"
+	while read repo_name; do
+		if [ ! -d "$repo_name" ]; then
+			error "Repository $repo_name doesn't exist, you need to clone it first"
+			exit 1
+		fi
+		cd $repo_name
+		banner "$repo_name: $action"
+		$action
+		cd ..
+	done < repos.txt
+}
+
+print_usage() {
+	cat << EOF
+Usage: $0 [options] command
+
+Commands:
+
+  clone      Clones all repositories
+  checkout   Checks out a given branch in all cloned repositories
+  status     Prints the status of each git repository
+  foreach    Runs the given command in all repositories
+  help       Prints this help
+  co         Alias for checkout
+  st         Alias for status
+
+clone options:
+
+  -b        Branch name, defaults to current branch
+  -m        Remote URL method, Values are https and ssh, defaults to https
+
+checkout options:
+
+  -b        Branch name, defaults to current branch
+
+foreach options:
+
+  args...  Command to execute on each repository, plus arguments
+
+
+EOF
+}
+
+print_usage_summary() {
+	cat << EOF
+usage: $0 [options...] command
+
+For more comprehensive help use -h or -?
+EOF
+}
+
+# First argument is the command
+if [ $# -lt 1 ]
+then
+	error "Missing command"
+	print_usage 1>&2
+	exit 1
+fi
+command=$1
+shift
+
+# Execute command
+case "$command" in
+	clone)
+		clone "$@"
+		;;
+	checkout)
+		checkout "$@"
+		;;
+	pull)
+		pull "$@"
+		;;
+	co)
+		checkout "$@"
+		;;
+	status)
+		status
+		;;
+	st)
+		status
+		;;
+	foreach)
+		foreach "$@"
+		;;
+	help)
+		print_usage
+		;;
+	*)
+		error "Unkown command: $command"
+		exit 1
+		;;
+esac
