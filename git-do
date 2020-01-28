@@ -17,7 +17,7 @@ repo_url() {
 	if [ "$method" = http ] || [ "$method" = https ]; then
 		echo "https://$_BITBUKET_URL/scm/askapsdp/$name.git"
 	elif [ "$method" = ssh ]; then
-		echo "git@$_BITBUKET_URL:7999/askapsdp/$name.git"
+		echo "ssh://git@$_BITBUKET_URL:7999/askapsdp/$name.git"
 	else
 		error "Unknown method: $method" && exit 1
 	fi
@@ -93,6 +93,35 @@ pull() {
 
 status() {
 	foreach git status
+}
+
+set-url() {
+	method=http
+	while getopts "m:" opt; do
+		case "$opt" in
+			m)
+				method="$OPTARG"
+				;;
+			*)
+				echo "Unsupported option: $opt"
+				print_usage_summary 1>&2
+				exit 1
+				;;
+		esac
+	done
+	check_method $method
+	banner "Changing all repositories' URLs to use the $method method"
+	while read repo_name; do
+		if [ ! -d "$repo_name" ]; then
+			error "Repository $repo_name doesn't exist, you need to clone it first"
+			exit 1
+		fi
+		cd $repo_name
+		url=`repo_url $repo_name $method`
+		git remote set-url origin "$url"
+		cd ..
+	done < repos.txt
+
 }
 
 foreach() {
@@ -177,6 +206,9 @@ case "$command" in
 		;;
 	st)
 		status
+		;;
+   set-url)
+	   set-url "$@"
 		;;
 	foreach)
 		foreach "$@"
