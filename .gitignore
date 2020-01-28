@@ -1,0 +1,19 @@
+# Typical build directories
+/bin/
+/build/
+
+# Each individual repository
+/askap-cmake
+/base-accessors
+/base-askap
+/base-askapparallel
+/base-imagemath
+/base-logfilters
+/base-scimath
+/lofar-blob
+/lofar-common
+/yandasoft
+
+# Eclipse files
+/.project
+/.cproject
