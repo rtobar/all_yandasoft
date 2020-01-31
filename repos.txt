@@ -7,4 +7,5 @@ base-imagemath
 base-askapparallel
 base-scimath
 base-accessors
+base-components
 yandasoft

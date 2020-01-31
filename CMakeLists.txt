@@ -13,4 +13,6 @@ add_subdirectory(base-imagemath)
 add_subdirectory(base-askapparallel)
 add_subdirectory(base-scimath)
 add_subdirectory(base-accessors)
+add_subdirectory(base-components)
 add_subdirectory(yandasoft)
+
