@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
+
+option(BUILD_COMPONENTS ON "Whether to build base-components")
 
 include(CTest)
 if (BUILD_TESTING)
@@ -13,6 +15,7 @@ add_subdirectory(base-imagemath)
 add_subdirectory(base-askapparallel)
 add_subdirectory(base-scimath)
 add_subdirectory(base-accessors)
-add_subdirectory(base-components)
+if (BUILD_COMPONENTS)
+	add_subdirectory(base-components)
+endif()
 add_subdirectory(yandasoft)
-
