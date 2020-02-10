@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 
-option(BUILD_COMPONENTS ON "Whether to build base-components")
+option(BUILD_COMPONENTS "Whether to build base-components" ON)
+option(BUILD_ANALYSIS "Whether to build askap-analysis" ON)
+option(BUILD_PIPELINE "Whether to build askap-pipetasks" ON)
 
 include(CTest)
 if (BUILD_TESTING)
@@ -15,7 +17,15 @@ add_subdirectory(base-imagemath)
 add_subdirectory(base-askapparallel)
 add_subdirectory(base-scimath)
 add_subdirectory(base-accessors)
+
 if (BUILD_COMPONENTS)
 	add_subdirectory(base-components)
 endif()
+if (BUILD_ANALYSIS)
+    add_subdirectory(askap-analysis)
+endif()
+if (BUILD_PIPELINE)
+    add_subdirectory(askap-pipelinetasks)
+endif()
+
 add_subdirectory(yandasoft)

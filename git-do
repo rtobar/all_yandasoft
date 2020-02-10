@@ -6,7 +6,7 @@ error() {
 
 banner() {
 	msg="** $@ **"
-	echo "$msg" | sed -n '{h; x; s/./*/gp; x; h; p; x; s/./*/gp}';
+	echo "$msg" | sed -n 'h; x; s/./*/gp; x; h; p; x; s/./*/gp';
 }
 
 _BITBUKET_URL=bitbucket.csiro.au
