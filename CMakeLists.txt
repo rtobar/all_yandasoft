@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 option(BUILD_COMPONENTS "Whether to build base-components" ON)
 option(BUILD_ANALYSIS "Whether to build askap-analysis" ON)
 option(BUILD_PIPELINE "Whether to build askap-pipetasks" ON)
-option(BUILD_YANDSOFT "Whether to build YANDASOFT" ON)
+option(BUILD_YANDASOFT "Whether to build YANDASOFT" ON)
 option(BUILD_SERVICES "Whether to build askap-services" OFF)
 
 include(CTest)
