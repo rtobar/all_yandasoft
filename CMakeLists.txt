@@ -4,6 +4,14 @@ option(BUILD_COMPONENTS "Whether to build base-components" ON)
 option(BUILD_ANALYSIS "Whether to build askap-analysis" ON)
 option(BUILD_PIPELINE "Whether to build askap-pipetasks" ON)
 
+# Automatically include askap-components if building askap-analysis or askap-pipetasks
+if (BUILD_ANALYSIS)
+	set(BUILD_COMPONENTS ON)
+endif()
+if (BUILD_PIPELINE)
+	set(BUILD_COMPONENTS ON)
+endif()
+
 include(CTest)
 if (BUILD_TESTING)
 	enable_testing()
