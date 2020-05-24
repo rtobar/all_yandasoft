@@ -327,7 +327,8 @@ def make_base_image(machine, mpi, prepend, append, actual):
     "libxerces-c-dev",
     "libcurl4-openssl-dev",
     "xsltproc",
-    "gcovr"]
+    "gcovr",
+    "libzmq3-dev"]
 
     for apt_install_item in apt_install_items:
         apt_install_part += " \\\n" + "        " + apt_install_item
@@ -498,7 +499,7 @@ def make_final_image(machine, mpi, prepend, append, base_image, actual):
 
     base_part = ("FROM " + base_image + " as buildenv\n")
 
-    cmake_cxx_flags = "-DCMAKE_CXX_FLAGS=\"" + MPI_COMPILE_FLAGS + " -DCMAKE_BUILD_TYPE=Release \""
+    cmake_cxx_flags = "-DCMAKE_CXX_FLAGS=\"" + MPI_COMPILE_FLAGS + "\" -DCMAKE_BUILD_TYPE=Release"
     cmake_build_flags = "-DBUILD_ANALYSIS=OFF -DBUILD_PIPELINE=OFF -DBUILD_COMPONENTS=OFF -DBUILD_SERVICES=OFF"
 
     common_part = (
@@ -527,6 +528,7 @@ def make_final_image(machine, mpi, prepend, append, base_image, actual):
     "WORKDIR /home\n"
     "RUN git clone https://github.com/ATNF/all_yandasoft.git\n"
     "WORKDIR /home/all_yandasoft\n"
+    "RUN git checkout -b " + git_branch + "\n"
     "RUN ./git-do clone\n"
     "RUN ./git-do checkout -b " + git_branch + "\n"
     "RUN mkdir build\n"
