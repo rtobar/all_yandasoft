@@ -86,8 +86,6 @@ stages:
 
 .common_docker:
   image: docker:stable
-  tags:
-    - docker-executor
   before_script:
     - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
     - docker info
