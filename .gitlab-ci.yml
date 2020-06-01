@@ -9,10 +9,7 @@ variables:
   YANDASOFT_BRANCH: develop
 
 stages:
-  - build_base
-  - build_analysis
-  - build_pipelinetasks
-  - build_services
+  - build
   - test
   - build_docker_image
   - linting
@@ -21,7 +18,8 @@ stages:
 
 build_base:
     extends: .common
-    stage: build_base
+    stage: build
+    resource_group: buildit
     before_script:
         - ./git-do clone -b $YANDASOFT_BRANCH
     script:
@@ -35,9 +33,8 @@ build_base:
             - askap-cmake
 build_analysis:
     extends: .common
-    stage: build_analysis
-    dependencies:
-        - build_base
+    stage: build
+    resource_group: buildit
     script:
         - cd build
         - cmake .. -DBUILD_ANALYSIS=ON -DBUILD_PIPELINE=OFF -DBUILD_COMPONENTS=OFF -DBUILD_ANALYSIS=OFF -DBUILD_SERVICES=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-coverage" -DCMAKE_EXE_LINKER_FLAGS="-coverage" -DCMAKE_INSTALL_PREFIX=/builds/ASKAPSDP/install
@@ -49,10 +46,8 @@ build_analysis:
 
 build_pipelinetasks:
     extends: .common
-    stage: build_pipelinetasks
-    dependencies:
-        - build_base
-        - build_analysis
+    stage: build
+    resource_group: buildit
     script:
         - cd build
         - cmake .. -DBUILD_ANALYSIS=OFF -DBUILD_PIPELINE=ON -DBUILD_COMPONENTS=OFF -DBUILD_ANALYSIS=OFF -DBUILD_SERVICES=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-coverage" -DCMAKE_EXE_LINKER_FLAGS="-coverage" -DCMAKE_INSTALL_PREFIX=/builds/ASKAPSDP/install
@@ -64,11 +59,8 @@ build_pipelinetasks:
 
 build_services:
     extends: .common
-    stage: build_services
-    dependencies: 
-        - build_base
-        - build_analysis
-        - build_pipelinetasks
+    stage: build
+    resource_group: buildit
     before_script:
         - export DEBIAN_FRONTEND=noninteractive
         - apt update && apt install -y tzdata
