@@ -93,6 +93,8 @@ stages:
 build docker image:
   stage: build
   extends: .common_docker
+  depends:
+    - .build_base
   script:
     # The docker image tag is:
     #  * The git tag if building a git tag
