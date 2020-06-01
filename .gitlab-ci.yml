@@ -121,7 +121,11 @@ test:
   extends: .common
   stage: test
   dependencies:
-    - build
+    - build_base
+    - build_analysis
+    - build_pipelinetasks
+    - build_services
+
   before_script:
     - apt update && apt install -y cmake xsltproc
   variables:
