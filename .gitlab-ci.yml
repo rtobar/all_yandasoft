@@ -23,8 +23,7 @@ build_base:
     extends: .common
     stage: build_base
     before_script:
-        - ./git-do clone
-        - ./git-do checkout -b $YANDASOFT_BRANCH
+        - ./git-do clone -b $YANDASOFT_BRANCH
     script:
         - mkdir build
         - cd build
