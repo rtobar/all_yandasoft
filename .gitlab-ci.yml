@@ -59,7 +59,7 @@ stages:
             - askap-cmake
 
 .build_services:
-    extends: . common
+    extends: .common
     stage: build
     dependencies: 
         - .build_base
