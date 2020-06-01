@@ -13,6 +13,7 @@ stages:
   - test
   - linting
   - deploy
+  - pages
 
 .build_base:
     extends: .common
@@ -142,8 +143,6 @@ test:
 pages:
   extends: .common
   stage: pages
-  dependencies:
-    - test:test
   before_script:
     - apt update && apt install -y gcovr curl doxygen graphviz
   script:
