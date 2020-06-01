@@ -11,11 +11,12 @@ variables:
 stages:
   - build
   - test
+  - build_docker_image
   - linting
   - deploy
   - pages
 
-.build_base:
+build_base:
     extends: .common
     stage: build
     before_script:
@@ -30,11 +31,11 @@ stages:
         paths:
             - build
             - askap-cmake
-.build_analysis:
+build_analysis:
     extends: .common
     stage: build
     dependencies:
-        - .build_base
+        - build_base
     script:
         - cd build
         - cmake .. -DBUILD_ANALYSIS=ON -DBUILD_PIPELINE=OFF -DBUILD_COMPONENTS=OFF -DBUILD_ANALYSIS=OFF -DBUILD_SERVICES=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-coverage" -DCMAKE_EXE_LINKER_FLAGS="-coverage" -DCMAKE_INSTALL_PREFIX=/builds/ASKAPSDP/install
@@ -44,12 +45,12 @@ stages:
             - build
             - askap-cmake
 
-.build_pipelinetasks:
+build_pipelinetasks:
     extends: .common
     stage: build
     dependencies:
-        - .build_base
-        - .build_analysis
+        - build_base
+        - build_analysis
     script:
         - cd build
         - cmake .. -DBUILD_ANALYSIS=OFF -DBUILD_PIPELINE=ON -DBUILD_COMPONENTS=OFF -DBUILD_ANALYSIS=OFF -DBUILD_SERVICES=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-coverage" -DCMAKE_EXE_LINKER_FLAGS="-coverage" -DCMAKE_INSTALL_PREFIX=/builds/ASKAPSDP/install
@@ -59,13 +60,13 @@ stages:
             - build
             - askap-cmake
 
-.build_services:
+build_services:
     extends: .common
     stage: build
     dependencies: 
-        - .build_base
-        - .build_analysis
-        - .build_pipelinetasks
+        - build_base
+        - build_analysis
+        - build_pipelinetasks
     before_script:
         - export DEBIAN_FRONTEND=noninteractive
         - apt update && apt install -y tzdata
@@ -91,12 +92,10 @@ stages:
     - docker info
 
 build_docker_image:
-  stage: build
+  stage: build_docker_image
   extends:
     - .common 
     - .common_docker
-  dependencies:
-    - build:.build_base
   script:
     # The docker image tag is:
     #  * The git tag if building a git tag
