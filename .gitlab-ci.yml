@@ -96,7 +96,7 @@ build_docker_image:
     - .common 
     - .common_docker
   dependencies:
-    - build: .build_base
+    - build:.build_base
   script:
     # The docker image tag is:
     #  * The git tag if building a git tag
