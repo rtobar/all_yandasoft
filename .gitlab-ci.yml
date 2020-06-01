@@ -9,7 +9,10 @@ variables:
   YANDASOFT_BRANCH: develop
 
 stages:
-  - build
+  - build_base
+  - build_analysis
+  - build_pipelinetasks
+  - build_services
   - test
   - build_docker_image
   - linting
@@ -18,7 +21,7 @@ stages:
 
 build_base:
     extends: .common
-    stage: build
+    stage: build_base
     before_script:
         - ./git-do clone
         - ./git-do checkout -b $YANDASOFT_BRANCH
@@ -33,7 +36,7 @@ build_base:
             - askap-cmake
 build_analysis:
     extends: .common
-    stage: build
+    stage: build_analysis
     dependencies:
         - build_base
     script:
@@ -47,7 +50,7 @@ build_analysis:
 
 build_pipelinetasks:
     extends: .common
-    stage: build
+    stage: build_pipelinetasks
     dependencies:
         - build_base
         - build_analysis
@@ -62,7 +65,7 @@ build_pipelinetasks:
 
 build_services:
     extends: .common
-    stage: build
+    stage: build_services
     dependencies: 
         - build_base
         - build_analysis
