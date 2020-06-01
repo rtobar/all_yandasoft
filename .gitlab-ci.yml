@@ -90,9 +90,11 @@ stages:
     - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
     - docker info
 
-build docker image:
+build_docker_image:
   stage: build
-  extends: .common_docker
+  extends:
+    - .common 
+    - .common_docker
   dependencies:
     - .build_base
   script:
@@ -116,7 +118,6 @@ build docker image:
   artifacts:
     paths:
       - docker_image.tar
-
 
 test:
   extends: .common
@@ -158,11 +159,13 @@ pages:
     paths:
       - public
 
-publish docker image:
+publish_docker_image:
   stage: deploy
-  extends: .common_docker
+  extends: 
+    - .common
+    - .common_docker
   dependencies:
-    - build docker image
+    - build_docker_image
   script:
     - image_id=`docker load < docker_image.tar | sed -n '/Loaded image:/ { s/Loaded image://p }'`
     - echo $image_id
