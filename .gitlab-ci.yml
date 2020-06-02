@@ -81,7 +81,7 @@ test:
     - ./git-do clone -b $YANDASOFT_BRANCH
 
   variables:
-    CASARCFILES: /builds/ASKAPSDP/base-askap/build/test_gitlab_casarc.cfg
+    CASARCFILES: /builds/ASKAPSDP/all_yandasoft/build/base-askap/test_gitlab_casarc.cfg
   script:
     - cd build
     - tar -xjf ../base-accessors/measdata.tar.bz2
