@@ -78,6 +78,8 @@ test:
     - build
   before_script:
     - apt update && apt install -y cmake xsltproc
+    - ./git-do clone -b $YANDASOFT_BRANCH
+
   variables:
     CASARCFILES: /builds/ASKAPSDP/base-askap/build/test_gitlab_casarc.cfg
   script:
