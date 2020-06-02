@@ -9,7 +9,10 @@ variables:
   YANDASOFT_BRANCH: develop
 
 stages:
-  - build
+  - build_base
+  - build_analysis
+  - build_pipelinetasks
+  - build_services
   - test
   - build_docker_image
   - linting
@@ -35,6 +38,8 @@ build_analysis:
     extends: .common
     stage: build
     resource_group: buildit
+    dependencies:
+        - build_base
     before_script:
         - ./git-do clone -b $YANDASOFT_BRANCH
     script:
@@ -50,6 +55,8 @@ build_pipelinetasks:
     extends: .common
     stage: build
     resource_group: buildit
+    dependencies:
+        - build_analysis
     before_script:
         - ./git-do clone -b $YANDASOFT_BRANCH
     script:
@@ -65,6 +72,8 @@ build_services:
     extends: .common
     stage: build
     resource_group: buildit
+    dependencies:
+        - build_pipelinetasks
     before_script:
         - ./git-do clone -b $YANDASOFT_BRANCH
     before_script:
