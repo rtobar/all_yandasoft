@@ -21,7 +21,7 @@ stages:
 
 build_base:
     extends: .common
-    stage: build
+    stage: build_base
     resource_group: buildit
     before_script:
         - ./git-do clone -b $YANDASOFT_BRANCH
@@ -36,7 +36,7 @@ build_base:
             - askap-cmake
 build_analysis:
     extends: .common
-    stage: build
+    stage: build_analysis
     resource_group: buildit
     dependencies:
         - build_base
@@ -53,7 +53,7 @@ build_analysis:
 
 build_pipelinetasks:
     extends: .common
-    stage: build
+    stage: build_pipelinetasks
     resource_group: buildit
     dependencies:
         - build_analysis
@@ -70,7 +70,7 @@ build_pipelinetasks:
 
 build_services:
     extends: .common
-    stage: build
+    stage: build_services
     resource_group: buildit
     dependencies:
         - build_pipelinetasks
