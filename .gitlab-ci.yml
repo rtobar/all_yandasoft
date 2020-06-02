@@ -35,6 +35,8 @@ build_analysis:
     extends: .common
     stage: build
     resource_group: buildit
+    before_script:
+        - ./git-do clone -b $YANDASOFT_BRANCH
     script:
         - cd build
         - cmake .. -DBUILD_ANALYSIS=ON -DBUILD_PIPELINE=OFF -DBUILD_COMPONENTS=OFF -DBUILD_ANALYSIS=OFF -DBUILD_SERVICES=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-coverage" -DCMAKE_EXE_LINKER_FLAGS="-coverage" -DCMAKE_INSTALL_PREFIX=/builds/ASKAPSDP/install
@@ -48,6 +50,8 @@ build_pipelinetasks:
     extends: .common
     stage: build
     resource_group: buildit
+    before_script:
+        - ./git-do clone -b $YANDASOFT_BRANCH
     script:
         - cd build
         - cmake .. -DBUILD_ANALYSIS=OFF -DBUILD_PIPELINE=ON -DBUILD_COMPONENTS=OFF -DBUILD_ANALYSIS=OFF -DBUILD_SERVICES=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-coverage" -DCMAKE_EXE_LINKER_FLAGS="-coverage" -DCMAKE_INSTALL_PREFIX=/builds/ASKAPSDP/install
@@ -61,6 +65,8 @@ build_services:
     extends: .common
     stage: build
     resource_group: buildit
+    before_script:
+        - ./git-do clone -b $YANDASOFT_BRANCH
     before_script:
         - export DEBIAN_FRONTEND=noninteractive
         - apt update && apt install -y tzdata
