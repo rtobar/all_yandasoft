@@ -21,11 +21,10 @@ build:
     stage: build
     resource_group: buildit
     before_script:
-        - ./git-do clone -b $YANDASOFT_BRANCH
-    before_script:
         - export DEBIAN_FRONTEND=noninteractive
         - apt update && apt install -y tzdata
         - apt install -y g++ git cmake xsltproc zeroc-ice-all-dev zeroc-ice-all-runtime libczmq-dev 
+        - ./git-do clone -b $YANDASOFT_BRANCH
     script:
         - n_cpus=`grep '^processor' /proc/cpuinfo  | wc -l`
         - mkdir build
