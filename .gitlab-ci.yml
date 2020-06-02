@@ -82,7 +82,7 @@ test:
     CASARCFILES: /builds/ASKAPSDP/base-askap/build/test_gitlab_casarc.cfg
   script:
     - cd build
-    - tar -xjf /home/all_yandasoft/base-accessors/measdata.tar.bz2
+    - tar -xjf ../base-accessors/measdata.tar.bz2
     - "echo 'measures.directory: '${PWD}'/data' > ${CASARCFILES}"
     - cat $CASARCFILES
     - ctest -T test --verbose --no-compress-output
