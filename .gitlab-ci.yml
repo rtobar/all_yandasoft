@@ -40,9 +40,9 @@ build:
 
 .common_docker:
   image: docker:stable
-  before_script:
-    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
-    - docker info
+#  before_script:
+#    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
+#    - docker info
 
 build_docker_image:
   stage: build_docker_image
