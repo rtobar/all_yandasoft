@@ -7,6 +7,8 @@ image: registry.gitlab.com/askapsdp/all_yandasoft:base
 
 variables:
   YANDASOFT_BRANCH: develop
+  DOCKER_REGISTRY_HOST: registry.gitlab.com
+  DOCKER_REGISTRY_FOLDER: askapsdp
 
 stages:
   - build
