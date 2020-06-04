@@ -12,12 +12,12 @@ variables:
   DOCKER_HOST: tcp://docker:2375/
 
 stages:
-  #- build
-  #- test
+  - build
+  - test
   - build_docker_image
-  #- linting
-  #- deploy
-  #- pages
+  - linting
+  - deploy
+  - pages
 
 build:
     extends: .common
