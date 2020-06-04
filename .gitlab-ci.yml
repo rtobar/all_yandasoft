@@ -41,7 +41,7 @@ build:
             - askap-cmake
 
 .common_docker:
-  image: docker:stable
+  image: docker:dind
 #  before_script:
 #    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
 #    - docker info
