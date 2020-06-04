@@ -9,14 +9,15 @@ variables:
   YANDASOFT_BRANCH: develop
   DOCKER_REGISTRY_HOST: registry.gitlab.com
   DOCKER_REGISTRY_FOLDER: askapsdp
+  DOCKER_HOST: tcp://docker:2375/
 
 stages:
-  - build
-  - test
+  #- build
+  #- test
   - build_docker_image
-  - linting
-  - deploy
-  - pages
+  #- linting
+  #- deploy
+  #- pages
 
 build:
     extends: .common
@@ -41,7 +42,10 @@ build:
             - askap-cmake
 
 .common_docker:
-  image: docker:dind
+  image: docker:stable
+  services:
+    - docker:dind
+
 #  before_script:
 #    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
 #    - docker info
