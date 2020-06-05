@@ -84,15 +84,15 @@ checkout() {
 				;;
 		esac
 	done
-	foreach git checkout $branch
+	_git checkout $branch
 }
 
 pull() {
-	foreach git pull
+	_git pull
 }
 
 status() {
-	foreach git status
+	_git status
 }
 
 set-url() {
@@ -124,6 +124,10 @@ set-url() {
 
 }
 
+_git() {
+	foreach git "$@"
+}
+
 foreach() {
 	action="$@"
 	while read repo_name; do
@@ -146,6 +150,7 @@ Commands:
 
   clone      Clones all repositories
   checkout   Checks out a given branch in all cloned repositories
+  git        Runs the given git command in all repositories
   status     Prints the status of each git repository
   foreach    Runs the given command in all repositories
   help       Prints this help
@@ -160,6 +165,10 @@ clone options:
 checkout options:
 
   -b        Branch name, defaults to current branch
+
+git options:
+
+  args...  Git command to execute on each repository, plus arguments
 
 foreach options:
 
@@ -209,6 +218,9 @@ case "$command" in
 		;;
    set-url)
 	   set-url "$@"
+		;;
+	git)
+		_git "$@"
 		;;
 	foreach)
 		foreach "$@"

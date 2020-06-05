@@ -4,6 +4,8 @@
 
 # Each individual repository
 /askap-cmake
+/askap-analysis
+/askap-pipelinetasks
 /base-accessors
 /base-askap
 /base-askapparallel
