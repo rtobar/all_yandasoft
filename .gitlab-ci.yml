@@ -1,0 +1,123 @@
+# GitLab CI n conjunction with GitLab Runner can use Docker Engine to test and build any application.
+# Docker, when used with GitLab CI, runs each job in a separate and isolated container using the predefined image that is set up in .gitlab-ci.yml.
+image: registry.gitlab.com/askapsdp/all_yandasoft:base
+
+.common: {tags: [azure]}
+# cache is used to specify a list of files and directories which should be cached between jobs. You can only use paths that are within the project workspace.
+
+variables:
+  YANDASOFT_BRANCH: develop
+  DOCKER_REGISTRY_HOST: registry.gitlab.com
+  DOCKER_REGISTRY_FOLDER: askapsdp
+  DOCKER_HOST: tcp://docker:2375/
+
+stages:
+  - build
+  - test
+  - build_docker_image
+  - linting
+  - deploy
+  - pages
+
+build:
+    extends: .common
+    stage: build
+    resource_group: buildit
+    before_script:
+        - export DEBIAN_FRONTEND=noninteractive
+        - apt update && apt install -y tzdata
+        - apt install -y g++ git cmake xsltproc zeroc-ice-all-dev zeroc-ice-all-runtime libczmq-dev 
+        - ./git-do clone -b $YANDASOFT_BRANCH
+    script:
+        - n_cpus=`grep '^processor' /proc/cpuinfo  | wc -l`
+        - mkdir build
+        - cd build
+        - cmake ..  -DIce_HOME=/usr/lib/x86_64-linux-gnu/ -DBUILD_ANALYSIS=ON -DBUILD_PIPELINE=ON -DBUILD_COMPONENTS=ON -DBUILD_ANALYSIS=ON -DBUILD_SERVICES=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-coverage" -DCMAKE_EXE_LINKER_FLAGS="-coverage" -DCMAKE_INSTALL_PREFIX=/builds/ASKAPSDP/install
+        - cmake --build . -j $n_cpus
+    artifacts:
+        when: always
+        expire_in: 1 week
+        paths:
+            - build
+            - askap-cmake
+
+.common_docker:
+  image: docker:stable
+  services:
+    - docker:dind
+
+#  before_script:
+#    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
+#    - docker info
+
+build_docker_image:
+  stage: build_docker_image
+  extends:
+    - .common
+    - .common_docker
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    # The docker image tag is:
+    #  * The git tag if building a git tag
+    #  * "latest" when building the develop branch
+    #  * "stable" when building the master branch
+    #  * The branch name
+    - BRANCH=${CI_COMMIT_TAG:-${CI_COMMIT_BRANCH}}
+    - DOCKER_TAG=$BRANCH
+    - >
+      if [ "$CI_COMMIT_BRANCH" = develop ]; then
+        DOCKER_TAG=latest
+      elif [ "$CI_COMMIT_BRANCH" = master ]; then
+        DOCKER_TAG=stable
+      fi
+    - >
+      docker build -t $DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_FOLDER/all_yandasoft:$DOCKER_TAG
+      --build-arg BRANCH=${YANDASOFT_BRANCH} -f .gitlab-docker .
+    - docker push $DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_FOLDER/all_yandasoft:$DOCKER_TAG
+
+test:
+  extends: .common
+  stage: test
+  dependencies:
+    - build
+  before_script:
+    - apt update && apt install -y cmake xsltproc
+    - ./git-do clone -b $YANDASOFT_BRANCH
+
+  variables:
+    CASARCFILES: /builds/ASKAPSDP/all_yandasoft/build/base-askap/test_gitlab_casarc.cfg
+  script:
+    - cd build
+    - tar -xjf ../base-accessors/measdata.tar.bz2
+    - "echo 'measures.directory: '${PWD}'/data' > ${CASARCFILES}"
+    - cat $CASARCFILES
+    - ctest -T test --no-compress-output
+  after_script:
+    - cd build
+    - ../askap-cmake/ctest2junit > ctest.xml
+  artifacts:
+    paths:
+      - build
+    reports:
+      junit: build/ctest.xml
+
+pages:
+  extends: .common
+  stage: pages
+  before_script:
+    - apt update && apt install -y gcovr curl doxygen graphviz
+  script:
+    - mkdir -p public/build/reports
+    - mkdir -p public/coverage
+    - gcovr -r . -e '.*/CompilerIdCXX/.*' -e '.*/test/.*' --html --html-details -o public/coverage/index.html
+    - gcovr -r . -e '.*/CompilerIdCXX/.*' -e '.*/test/.*' --xml -o public/build/reports/code-coverage.xml
+    - cp build/ctest.xml public/build/reports/unit-tests.xml
+    - doxygen doxy.conf && mv html public/doxygen
+    - cd public
+    - curl -s https://gitlab.com/ska-telescope/ci-metrics-utilities/raw/master/scripts/ci-badges-func.sh | sh
+  artifacts:
+    paths:
+      - public
+
+
