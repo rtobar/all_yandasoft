@@ -1,0 +1,13 @@
+FROM registry.gitlab.com/askapsdp/all_yandasoft:base
+ARG CACHE-DATE=23-03-2020-15:50
+ARG BRANCH=develop
+WORKDIR /home
+RUN git clone https://github.com/ATNF/all_yandasoft.git
+WORKDIR /home/all_yandasoft
+RUN ./git-do clone
+RUN ./git-do checkout -b $BRANCH
+RUN mkdir build
+WORKDIR /home/all_yandasoft/build
+RUN cmake .. -DBUILD_ANALYSIS=OFF -DBUILD_PIPELINE=OFF -DBUILD_COMPONENTS=OFF -DBUILD_ANALYSIS=OFF -DBUILD_SERVICES=OFF ..
+RUN make
+RUN make install
