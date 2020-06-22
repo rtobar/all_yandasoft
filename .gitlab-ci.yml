@@ -92,7 +92,7 @@ test:
     - tar -xjf ../base-accessors/measdata.tar.bz2
     - "echo 'measures.directory: '${PWD}'/data' > ${CASARCFILES}"
     - cat $CASARCFILES
-    - ctest -T test --no-compress-output
+    - ctest -C DartConfiguration.tcl -T test --verbose --no-compress-output
   after_script:
     - cd build
     - ../askap-cmake/ctest2junit > ctest.xml
