@@ -18,7 +18,9 @@ repo_url() {
 		echo "https://$_BITBUKET_URL/scm/askapsdp/$name.git"
 	elif [ "$method" = ssh ]; then
 		echo "ssh://git@$_BITBUKET_URL:7999/askapsdp/$name.git"
-	else
+	elif [ "$method" = gitlab ]; then
+        echo "https://gitlab.com/ASKAPSDP/$name.git"
+    else
 		error "Unknown method: $method" && exit 1
 	fi
 }
@@ -37,7 +39,7 @@ current_branch() {
 check_method() {
 	method=$1
 	# Check method is supported
-	if [ "$method" != http ] && [ "$method" != https ] && [ "$method" != ssh ]; then
+	if [ "$method" != http ] && [ "$method" != https ] && [ "$method" != ssh ] && [ "$method" != gitlab ]; then
 		error "Unknown method: $method" && exit 1
 	fi
 }
