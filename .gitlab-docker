@@ -1,5 +1,16 @@
 FROM registry.gitlab.com/askapsdp/all_yandasoft:base
-ARG CACHE-DATE=23-03-2020-15:50
+RUN apt-get update --fix-missing
+RUN apt-get upgrade -y
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y tzdata
+RUN apt-get install -y g++ 
+RUN apt-get install -y git 
+RUN apt-get install -y cmake 
+RUN apt-get install -y xsltproc 
+RUN apt-get install -y zeroc-ice-all-dev 
+RUN apt-get install -y zeroc-ice-all-runtime 
+RUN apt-get install -y libczmq-dev
+ARG CACHE-DATE=28-07-2020-15:50
 ARG BRANCH=develop
 WORKDIR /home
 RUN git clone https://github.com/ATNF/all_yandasoft.git
@@ -8,6 +19,6 @@ RUN ./git-do clone
 RUN ./git-do checkout -b $BRANCH
 RUN mkdir build
 WORKDIR /home/all_yandasoft/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_ANALYSIS=OFF -DBUILD_PIPELINE=OFF -DBUILD_COMPONENTS=ON ..
+RUN cmake -DIce_HOME=/usr/lib/x86_64-linux-gnu/ -DBUILD_ANALYSIS=ON -DBUILD_PIPELINE=ON -DBUILD_COMPONENTS=ON -DBUILD_ANALYSIS=ON -DBUILD_SERVICES=ON -DCMAKE_BUILD_TYPE=Release ..
 RUN make
 RUN make install
