@@ -42,6 +42,7 @@ if (BUILD_YANDASOFT)
     add_subdirectory(yandasoft)
 endif (BUILD_YANDASOFT)
 
-if (BUILD_SERVICES) 
+if (BUILD_SERVICES)
+    add_subdirectory(base-logappenders)   	
     add_subdirectory(askap-services)
 endif (BUILD_SERVICES)    

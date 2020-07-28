@@ -8,6 +8,7 @@ base-askapparallel
 base-scimath
 base-accessors
 base-components
+base-logappenders
 yandasoft
 askap-analysis
 askap-pipelinetasks
