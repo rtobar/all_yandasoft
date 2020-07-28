@@ -28,12 +28,12 @@ build:
         - apt update && apt install -y tzdata
         - apt install -y g++ git cmake xsltproc zeroc-ice-all-dev zeroc-ice-all-runtime libczmq-dev 
         - echo -e "machine gitlab.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
-        - ./git-do clone -m gitlab -b $YANDASOFT_BRANCH
+        - ./git-do clone -b $YANDASOFT_BRANCH
     script:
         - n_cpus=`grep '^processor' /proc/cpuinfo  | wc -l`
         - mkdir build
         - cd build
-        - cmake ..  -DIce_HOME=/usr/lib/x86_64-linux-gnu/ -DBUILD_ANALYSIS=ON -DBUILD_PIPELINE=ON -DBUILD_COMPONENTS=ON -DBUILD_ANALYSIS=ON -DBUILD_SERVICES=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-coverage" -DCMAKE_EXE_LINKER_FLAGS="-coverage" -DCMAKE_INSTALL_PREFIX=/builds/ASKAPSDP/install
+        - cmake ..  -DIce_HOME=/usr/lib/x86_64-linux-gnu/ -DBUILD_ANALYSIS=ON -DBUILD_PIPELINE=ON -DBUILD_COMPONENTS=ON -DBUILD_ANALYSIS=ON -DBUILD_SERVICES=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-coverage" -DCMAKE_EXE_LINKER_FLAGS="-coverage" -DCMAKE_INSTALL_PREFIX=/builds/ASKAPSDP/install
         - cmake --build . -j $n_cpus
     artifacts:
         when: always
@@ -85,7 +85,7 @@ test:
   before_script:
     - apt update && apt install -y cmake xsltproc
     - echo -e "machine gitlab.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc      
-    - ./git-do clone -m gitlab -b $YANDASOFT_BRANCH
+    - ./git-do clone -b $YANDASOFT_BRANCH
 
   variables:
     CASARCFILES: ${CI_PROJECT_DIR}/build/base-askap/test_gitlab_casarc.cfg
