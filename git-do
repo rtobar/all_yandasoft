@@ -27,9 +27,15 @@ repo_url() {
 
 all_repo_urls() {
 	method=$1
-	while read repo_name; do
-		repo_url $repo_name $method
-	done < repos.txt
+    if [ "$method" = gitlab ]; then
+        while read repo_name; do
+            echo "$repo_name"
+        done < gitlab_repos.txt
+    else
+	    while read repo_name; do
+		    repo_url $repo_name $method
+	    done < repos.txt
+    fi
 }
 
 current_branch() {
@@ -66,7 +72,7 @@ clone() {
 		esac
 	done
 	check_method $method
-	banner "Clonning all repositories (branch: $branch, method: $method)"
+	banner "Cloning all repositories (branch: $branch, method: $method)"
 	for url in `all_repo_urls $method`; do
 		git clone --branch $branch $url
 	done

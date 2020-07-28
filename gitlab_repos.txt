@@ -1,0 +1,15 @@
+https://bitbucket.csiro.au/scm/askapsdp/askap-cmake.git
+https://bitbucket.csiro.au/scm/askapsdp/lofar-common.git
+https://bitbucket.csiro.au/scm/askapsdp/lofar-blob.git
+https://bitbucket.csiro.au/scm/askapsdp/base-askap.git
+https://bitbucket.csiro.au/scm/askapsdp/base-logfilters.git
+https://bitbucket.csiro.au/scm/askapsdp/base-imagemath.git
+https://bitbucket.csiro.au/scm/askapsdp/base-askapparallel.git
+https://bitbucket.csiro.au/scm/askapsdp/base-scimath.git
+https://bitbucket.csiro.au/scm/askapsdp/base-accessors.git
+https://bitbucket.csiro.au/scm/askapsdp/base-components.git
+https://gitlab.com/ASKAPSDP/base-logappenders.git
+https://bitbucket.csiro.au/scm/askapsdp/yandasoft.git
+https://bitbucket.csiro.au/scm/askapsdp/askap-analysis.git
+https://bitbucket.csiro.au/scm/askapsdp/askap-pipelinetasks.git
+https://bitbucket.csiro.au/scm/askapsdp/askap-services.git
