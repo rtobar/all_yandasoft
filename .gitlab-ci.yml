@@ -27,6 +27,7 @@ build:
         - export DEBIAN_FRONTEND=noninteractive
         - apt update && apt install -y tzdata
         - apt install -y g++ git cmake xsltproc zeroc-ice-all-dev zeroc-ice-all-runtime libczmq-dev 
+        - echo -e "machine gitlab.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
         - ./git-do clone -m gitlab -b $YANDASOFT_BRANCH
     script:
         - n_cpus=`grep '^processor' /proc/cpuinfo  | wc -l`
@@ -83,6 +84,7 @@ test:
     - build
   before_script:
     - apt update && apt install -y cmake xsltproc
+    - echo -e "machine gitlab.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc      
     - ./git-do clone -m gitlab -b $YANDASOFT_BRANCH
 
   variables:
