@@ -12,4 +12,4 @@ https://gitlab.com/ASKAPSDP/base-logappenders.git
 https://bitbucket.csiro.au/scm/askapsdp/yandasoft.git
 https://bitbucket.csiro.au/scm/askapsdp/askap-analysis.git
 https://bitbucket.csiro.au/scm/askapsdp/askap-pipelinetasks.git
-https://bitbucket.csiro.au/scm/askapsdp/askap-services.git
+https://gitlab.com/ASKAPSDP/askap-services.git
