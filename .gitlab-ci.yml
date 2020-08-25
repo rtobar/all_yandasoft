@@ -3,13 +3,21 @@
 image: registry.gitlab.com/askapsdp/all_yandasoft:base
 
 .common: {tags: [azure]}
+.common_docker:
+  image: docker:19.03.12
+  services:
+    - docker:19.03.12-dind
 # cache is used to specify a list of files and directories which should be cached between jobs. You can only use paths that are within the project workspace.
 
 variables:
   YANDASOFT_BRANCH: develop
   DOCKER_REGISTRY_HOST: registry.gitlab.com
   DOCKER_REGISTRY_FOLDER: askapsdp
-  DOCKER_HOST: tcp://docker:2375/
+  #DOCKER_HOST: tcp://docker:2375/
+  #DOCKER_TLS_CERTDIR: ""
+  DOCKER_TLS_CERTDIR: "/certs"
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
 
 stages:
   - build
@@ -41,15 +49,6 @@ build:
         paths:
             - build
             - askap-cmake
-
-.common_docker:
-  image: docker:stable
-  services:
-    - docker:dind
-
-#  before_script:
-#    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
-#    - docker info
 
 build_docker_image:
   stage: build_docker_image
