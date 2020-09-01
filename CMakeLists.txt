@@ -5,7 +5,7 @@ option(BUILD_ANALYSIS "Whether to build askap-analysis" ON)
 option(BUILD_PIPELINE "Whether to build askap-pipetasks" ON)
 option(BUILD_YANDASOFT "Whether to build YANDASOFT" ON)
 option(BUILD_SERVICES "Whether to build askap-services" OFF)
-option(BUILD_LOGAPPENDERS "Whether to build base-logappenders" ON)
+option(BUILD_LOGAPPENDERS "Whether to build base-logappenders" OFF)
 
 # Automatically include askap-components if building askap-analysis or askap-pipetasks
 if (BUILD_ANALYSIS)
