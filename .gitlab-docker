@@ -15,6 +15,7 @@ ARG BRANCH=develop
 WORKDIR /home
 RUN git clone https://gitlab.com/ASKAPSDP/all_yandasoft.git
 WORKDIR /home/all_yandasoft
+RUN git checkout -b $BRANCH
 RUN ./git-do clone -m gitlab -b $BRANCH
 RUN mkdir build
 WORKDIR /home/all_yandasoft/build
