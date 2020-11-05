@@ -33,8 +33,8 @@
 # Currently, we target generic HPCs and a specific HPC: Galaxy.
 # When a specific machine target is chosen, MPI target is ignored.
 # Choose one or both of this list of target.
-machine_targets = ["generic", "galaxy"]
-# machine_targets = ["galaxy"]
+# machine_targets = ["generic", "galaxy"]
+machine_targets = ["galaxy"]
 
 # Set MPI implementations for generic machine in the list below.
 # Note that a specific machine requires no MPI specification.
@@ -47,9 +47,9 @@ machine_targets = ["generic", "galaxy"]
 # When they are not, the default version from the base OS will be installed
 # using the simplest method (apt-get install).
 # Choose a subset (or all) of this complete list of targets:
-mpi_targets = ["mpich", "mpich-3.3.2", "openmpi", "openmpi-4.0.2", "openmpi-3.1.4", "openmpi-2.1.6", "openmpi-1.10.7"]
+# mpi_targets = ["mpich", "mpich-3.3.2", "openmpi", "openmpi-4.0.2", "openmpi-3.1.4", "openmpi-2.1.6", "openmpi-1.10.7"]
 # mpi_targets = ["openmpi-4.0.2"]
-# mpi_targets = ["mpich"]
+mpi_targets = ["mpich"]
 
 git_branch = "develop"
 # git_branch = "master"
@@ -472,7 +472,8 @@ def make_base_image(machine, mpi, prepend, append, actual):
     elif (machine == "galaxy"):
         # Galaxy (of Pawsey) has Docker image with its MPICH implementation already baked into 
         # an Ubuntu base.
-        base_system_part = ("FROM pawsey/mpi-base:latest as buildenv\n")
+        # base_system_part = ("FROM pawsey/mpi-base:latest as buildenv\n")
+        base_system_part = ("FROM pawsey/mpich-base:3.1.4_ubuntu18.04 as buildenv\n")
         docker_target.set_recipe_name("Dockerfile-casabase-" + machine)
         docker_target.set_image_name(prepend + machine + append)
 
