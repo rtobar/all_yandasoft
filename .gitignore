@@ -13,6 +13,8 @@
 /base-imagemath
 /base-logfilters
 /base-scimath
+/askap-services
+/base-logappenders
 /lofar-blob
 /lofar-common
 /yandasoft
@@ -20,3 +22,9 @@
 # Eclipse files
 /.project
 /.cproject
+
+# Xcode
+/Project.*
+
+# build
+/build*
