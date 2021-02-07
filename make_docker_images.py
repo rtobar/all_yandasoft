@@ -33,8 +33,8 @@
 # Currently, we target generic HPCs and a specific HPC: Galaxy.
 # When a specific machine target is chosen, MPI target is ignored.
 # Choose one or both of this list of target.
-# machine_targets = ["generic", "galaxy"]
-machine_targets = ["galaxy"]
+machine_targets = ["generic", "galaxy"]
+# machine_targets = ["generic"]
 
 # Set MPI implementations for generic machine in the list below.
 # Note that a specific machine requires no MPI specification.
@@ -47,12 +47,11 @@ machine_targets = ["galaxy"]
 # When they are not, the default version from the base OS will be installed
 # using the simplest method (apt-get install).
 # Choose a subset (or all) of this complete list of targets:
-# mpi_targets = ["mpich", "mpich-3.3.2", "openmpi", "openmpi-4.0.2", "openmpi-3.1.4", "openmpi-2.1.6", "openmpi-1.10.7"]
-# mpi_targets = ["openmpi-4.0.2"]
-mpi_targets = ["mpich"]
+# mpi_targets = ["mpich", "mpich-3.3.2", "openmpi", "openmpi-4.0.5", "openmpi-3.1.6", "openmpi-2.1.6", "openmpi-1.10.7"]
+mpi_targets = ["mpich", "openmpi-4.1.0", "openmpi-3.1.6", "openmpi-2.1.6"]
 
-git_branch = "develop"
-# git_branch = "master"
+# git_branch = "develop"
+git_branch = "master"
 
 casacore_ver = "3.3.0"
 
@@ -79,7 +78,7 @@ print("nproc:", nproc)
 
 # Git repository of Yandasoft. 
 # No longer needed, as this is set directly downstream now.
-git_repository = "https://github.com/ATNF/yandasoft.git"
+# git_repository = "https://github.com/ATNF/yandasoft.git"
 
 # Header for all automatically generated Dockerfiles
 header = ("# This file is automatically created by " + __file__ + "\n")
@@ -335,7 +334,8 @@ def make_base_image(machine, mpi, prepend, append, actual):
     apt_install_part += "\\\n"
     apt_install_part += "    && rm -rf /var/lib/apt"
 
-    cmake_ver = "3.17.2"
+    # cmake_ver = "3.17.2"
+    cmake_ver = "3.18.4"
     cmake_source = "cmake-" + cmake_ver + ".tar.gz"
 
     common_top_part = (
@@ -371,7 +371,7 @@ def make_base_image(machine, mpi, prepend, append, actual):
     "WORKDIR /usr/local/share/casacore/casacore-" + casacore_ver + "\n"
     "RUN mkdir build\n"
     "WORKDIR build\n"
-    "RUN cmake " + cmake_cxx_compiler + " -DCMAKE_BUILD_TYPE=Release .. \\\n"
+    "RUN cmake " + cmake_cxx_compiler + " -DCMAKE_BUILD_TYPE=Release -DUSE_OPENMP=ON .. \\\n"
     "    && make -j" + str(nproc) + " \\\n"
     "    && make install\n"
     "WORKDIR /usr/local/share/casacore/\n"
@@ -500,7 +500,7 @@ def make_final_image(machine, mpi, prepend, append, base_image, actual):
 
     base_part = ("FROM " + base_image + " as buildenv\n")
 
-    cmake_cxx_flags = "-DCMAKE_CXX_FLAGS=\"" + MPI_COMPILE_FLAGS + "\" -DCMAKE_BUILD_TYPE=Release"
+    cmake_cxx_flags = "-DCMAKE_CXX_FLAGS=\"" + MPI_COMPILE_FLAGS + "\" -DCMAKE_BUILD_TYPE=Release -DENABLE_OPENMP=YES"
     cmake_build_flags = "-DBUILD_ANALYSIS=OFF -DBUILD_PIPELINE=OFF -DBUILD_COMPONENTS=OFF -DBUILD_SERVICES=OFF"
 
     common_part = (
@@ -527,11 +527,14 @@ def make_final_image(machine, mpi, prepend, append, base_image, actual):
     "    && make install\n"
     "# Build yandasoft\n"
     "WORKDIR /home\n"
-    "RUN git clone https://github.com/ATNF/all_yandasoft.git\n"
+    # "RUN git clone https://github.com/ATNF/all_yandasoft.git\n"
+    "RUN git clone https://gitlab.com/ASKAPSDP/all_yandasoft.git\n"
     "WORKDIR /home/all_yandasoft\n"
-    "RUN git checkout -b " + git_branch + "\n"
+    # "RUN git checkout -b " + git_branch + "\n"
+    "RUN git checkout " + git_branch + "\n"
     "RUN ./git-do clone\n"
-    "RUN ./git-do checkout -b " + git_branch + "\n"
+    # "RUN ./git-do checkout -b " + git_branch + "\n"
+    "RUN ./git-do checkout " + git_branch + "\n"
     "RUN mkdir build\n"
     "WORKDIR /home/all_yandasoft/build\n"
     "RUN cmake " + cmake_cxx_compiler + " " + cmake_cxx_flags + " " + cmake_build_flags + " .. \\\n"
