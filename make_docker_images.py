@@ -50,8 +50,8 @@ machine_targets = ["generic", "galaxy"]
 # mpi_targets = ["mpich", "mpich-3.3.2", "openmpi", "openmpi-4.0.5", "openmpi-3.1.6", "openmpi-2.1.6", "openmpi-1.10.7"]
 mpi_targets = ["mpich", "openmpi-4.1.0", "openmpi-3.1.6", "openmpi-2.1.6"]
 
-# git_branch = "develop"
-git_branch = "master"
+git_branch = "develop"
+# git_branch = "master"
 
 casacore_ver = "3.3.0"
 
@@ -636,12 +636,14 @@ def main():
         sys.exit(0)
 
     # The common components of image names in DockerHub
-    # base_prepend = "csirocass/casabase-"
-    base_prepend = "casabase-"
-    base_append = ":latest"
-    # final_prepend = "csirocass/yandasoft-"
-    final_prepend = "yandasoft-"
-    final_append = ":latest"
+    if git_branch == "master":
+        base_prepend = "csirocass/yandabase:"
+        final_prepend = "csirocass/yandasoft:"
+    else:
+        base_prepend = "csirocass/yandabase:dev-"
+        final_prepend = "csirocass/yandasoft:dev-"
+    base_append = ""
+    final_append = ""
 
     if args.base_image:
         print("Making base images ...")
