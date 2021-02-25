@@ -1,12 +1,21 @@
 #!/bin/sh
 
-while getopts t:b: flag
+while getopts t:b:r: flag
 do
     case "${flag}" in
         t) tag=${OPTARG};;
         b) branch=${OPTARG};;
+        r) remote=${OPTARG};;
     esac
 done
+
+if [ -z "$remote" ] ;
+then
+    echo "Please set remote (-r remote)"
+    exit 1
+else
+    echo "remote is ${remote}"
+fi
 
 if [ -z "$tag" ] ;
 then
@@ -26,7 +35,7 @@ fi
 
 pipeline="./git-do checkout -b ${branch}"
 pipeline=" ${pipeline} && ./git-do foreach git checkout -b release/${tag} ${branch}"
-pipeline=" ${pipeline} && ./git-do foreach git push --set-upstream origin release/${tag}"
+pipeline=" ${pipeline} && ./git-do foreach git push --set-upstream ${remote} release/${tag}"
 echo ${pipeline}
 read -p "Continue (y/n)?" choice
 case "$choice" in 
@@ -44,6 +53,7 @@ do
     pipeline=" ${pipeline} && ./git-do foreach git pull "
     pipeline=" ${pipeline} && ./git-do foreach git merge --no-ff release/${tag} "
     pipeline=" ${pipeline} && ./git-do foreach git tag ${tag}"
+    pipeline=" ${pipeline} && ./git-do foreach git branch -d release/${tag}"
     pipeline=" ${pipeline} && ./git-do foreach git push origin $br"
 done
 echo ${pipeline}
