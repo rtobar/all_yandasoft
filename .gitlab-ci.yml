@@ -75,7 +75,7 @@ build_docker_image:
         DOCKER_BUILD=TRUE
       fi
     - >
-      if [ "$DOCKER_BUILD" = TRUE ];
+      if [ "$DOCKER_BUILD" = TRUE ]; then
         docker build -t $DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_FOLDER/all_yandasoft:$DOCKER_TAG
         --build-arg BRANCH=${YANDASOFT_BRANCH} -f .gitlab-docker .
         docker push $DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_FOLDER/all_yandasoft:$DOCKER_TAG
