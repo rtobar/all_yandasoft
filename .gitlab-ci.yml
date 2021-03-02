@@ -65,17 +65,20 @@ build_docker_image:
     #  * The branch name
     - BRANCH=${CI_COMMIT_TAG:-${CI_COMMIT_BRANCH}}
     - DOCKER_TAG=$BRANCH
+    - DOCKER_BUILD=FALSE
     - >
       if [ "$CI_COMMIT_BRANCH" = develop ]; then
         DOCKER_TAG=latest
+        DOCKER_BUILD=TRUE
       elif [ "$CI_COMMIT_BRANCH" = master ]; then
         DOCKER_TAG=stable
+        DOCKER_BUILD=TRUE
       fi
     - >
-      docker build -t $DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_FOLDER/all_yandasoft:$DOCKER_TAG
-      --build-arg BRANCH=${YANDASOFT_BRANCH} -f .gitlab-docker .
-    - docker push $DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_FOLDER/all_yandasoft:$DOCKER_TAG
-
+      if [ "$DOCKER_BUILD" = TRUE ]; then
+        docker build -t $DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_FOLDER/all_yandasoft:$DOCKER_TAG --build-arg BRANCH=${YANDASOFT_BRANCH} -f .gitlab-docker .
+        docker push $DOCKER_REGISTRY_HOST/$DOCKER_REGISTRY_FOLDER/all_yandasoft:$DOCKER_TAG
+      fi      
 test:
   extends: .common
   stage: test

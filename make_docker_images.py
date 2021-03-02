@@ -52,7 +52,7 @@ machine_targets = ["generic"]
 mpi_targets = ["openmpi-4.1.0"]
 
 git_branch = "develop"
-# git_branch = "master"
+#git_branch = "master"
 
 casacore_ver = "3.3.0"
 
@@ -62,7 +62,6 @@ casacore_ver = "3.3.0"
 # TODO: Add error handling, as this is going to be used within CI/CD
 # Consider checking whether all files to be downloaded actually exist!
 # TODO: Slim down the image. Some dev stuff can be removed from final image.
-# THINK: Why is native app much faster?
 
 import sys
 import argparse
@@ -74,7 +73,7 @@ from pathlib import Path
 nproc_available = os.cpu_count()
 nproc = 1
 if nproc_available > 1:
-    nproc = nproc_available - 1
+    nproc = nproc_available #- 1
 print("nproc:", nproc)
 
 # Git repository of Yandasoft. 
@@ -102,8 +101,8 @@ mpi_targets = list(map(str.lower, mpi_targets))
 
 def is_proper_name(name):
     '''
-    Return true if the name is non-empty and does not contain certain characters. 
-    False otherwise.
+    Return true if the name is non-empty and does not contain certain 
+    characters. False otherwise.
     '''
     if type(name) != str:
         raise TypeError("Name is not string")
@@ -161,7 +160,8 @@ class DockerClass:
         elif (self.image_name == ""):
             raise ValueError("Docker image file name has not been set")
         else:
-            return ("docker build -t " + self.image_name + " -f " + self.recipe_name + " .")
+            return ("docker build -t " + self.image_name + " -f " + 
+                self.recipe_name + " .")
          
     def build_image(self):
         '''Build the Docker image'''
@@ -174,7 +174,8 @@ class DockerClass:
                 # TODO: store log file, handle error
                 subprocess.run(build_command, shell=True)
             else:
-                raise FileExistsError("Docker recipe file does not exist:", self.recipe_name)
+                raise FileExistsError("Docker recipe file does not exist:", 
+                    self.recipe_name)
 
 
 
@@ -192,10 +193,14 @@ def split_version_number(input_ver):
 
 def compose_version_number(int_list):
     '''
-    Given a list of 3 integers, compose version number.
+    Given a list of 3 integers, compose version number as a string.
     '''
-    if (len(int_list) == 3):
-        return (str(int_list[0]) + '.' + str(int_list[1]) + '.' + str(int_list[2]))
+    if (isinstance(int_list, list)):
+        if (len(int_list) == 3):
+            return (str(int_list[0]) + '.' + str(int_list[1]) + '.' + 
+                str(int_list[2]))
+        else:
+            return ""
     else:
         return ""
 
@@ -203,7 +208,7 @@ def compose_version_number(int_list):
 def get_mpi_type_and_version(mpi_name):
     '''
     Given the full name of MPI, return MPI type (mpich / openmpi)
-    as well as version.
+    and the version as a list of 3 integers.
     When the version is not specified, the simplest version to install 
     is chosen (ie. using "apt-get install").
     Input should be in one of these formats:
@@ -221,7 +226,7 @@ def get_mpi_type_and_version(mpi_name):
         elif (length == 5):
             # Unspecified MPICH
             if (mpi_name == "mpich"):
-                return("mpich", "")
+                return("mpich", None)
             else:
                 raise ValueError("Expecting mpich:", mpi_name)
 
@@ -231,7 +236,7 @@ def get_mpi_type_and_version(mpi_name):
         elif (length == 7):
             # Unspecified OpenMPI
             if (mpi_name == "openmpi"):
-                return("openmpi", "")
+                return("openmpi", None)
             else:
                 raise ValueError("Expecting openmpi:", mpi_name)
 
@@ -240,7 +245,7 @@ def get_mpi_type_and_version(mpi_name):
                 # MPICH with specified version number
                 int_ver = split_version_number(mpi_name[6:])
                 if (len(int_ver) == 3):
-                    return ("mpich", compose_version_number(int_ver))
+                    return ("mpich", int_ver)
                 else:
                     raise ValueError("Illegal mpich version:", mpi_name[6:])
 
@@ -248,7 +253,7 @@ def get_mpi_type_and_version(mpi_name):
                 # OpenMPI with specified version number
                 int_ver = split_version_number(mpi_name[8:])
                 if (len(int_ver) == 3):
-                    return ("openmpi", compose_version_number(int_ver))
+                    return ("openmpi", int_ver)
                 else:
                     raise ValueError("Illegal openmpi version:", mpi_name[8:])
             else:
@@ -303,7 +308,8 @@ def make_base_image(machine, mpi, prepend, append, actual):
     "wcslib-dev",
     "libhdf5-serial-dev", 
     "libfftw3-dev",
-    "libpython-dev", 
+    "libpython2.7-dev", 
+    "libpython3-dev", 
     "python-pip",          
     "python-numpy",
     "python-scipy",
@@ -370,14 +376,19 @@ def make_base_image(machine, mpi, prepend, append, actual):
     "    && tar -xzf v" + casacore_ver + ".tar.gz\\\n"
     "    && rm v" + casacore_ver + ".tar.gz\n"
     "WORKDIR /usr/local/share/casacore/casacore-" + casacore_ver + "\n"
+    #"RUN git clone https://github.com/casacore/casacore.git \n"
+    #"WORKDIR /usr/local/share/casacore/casacore \n"
     "RUN mkdir build\n"
     "WORKDIR build\n"
-    "RUN cmake " + cmake_cxx_compiler + " -DCMAKE_BUILD_TYPE=Release -DUSE_OPENMP=ON .. \\\n"
+    "RUN cmake " + cmake_cxx_compiler + " -DUSE_FFTW3=ON -DDATA_DIR=/usr/local/share/casacore/data \\\n"
+    "    -DUSE_OPENMP=ON -DUSE_HDF5=ON -DBUILD_PYTHON=ON -DUSE_THREADS=ON -DCMAKE_BUILD_TYPE=Release .. \\\n"
     "    && make -j" + str(nproc) + " \\\n"
     "    && make install\n"
     "WORKDIR /usr/local/share/casacore/\n"
+    #"RUN git clone https://github.com/casacore/casarest.git \n"
+    #"WORKDIR /usr/local/share/casacore/casarest \n"
     "RUN wget https://github.com/steve-ord/casarest/tarball/078f94e \\\n"
-    "    && tar -xvzf 078f94e \\\n"
+    "    && tar -xzf 078f94e \\\n"
     "    && rm 078f94e\n"
     "WORKDIR steve-ord-casarest-078f94e\n"
     "RUN mkdir build\n"
@@ -387,6 +398,7 @@ def make_base_image(machine, mpi, prepend, append, actual):
     "    && make install \n"
     "WORKDIR /usr/local/share/casacore\n"
     "RUN rm -rf casacore \\\n"
+    #"    && rm -rf casarest \\\n"
     "    && rm -rf steve-ord-casarest-078f94e \\\n"
     "    && apt-get clean \n"
     )
@@ -395,7 +407,8 @@ def make_base_image(machine, mpi, prepend, append, actual):
     mpi_part = ""
     if machine == "generic":
         base_system_part = ("FROM ubuntu:bionic as buildenv\n")
-        (mpi_type, mpi_ver) = get_mpi_type_and_version(mpi)
+        (mpi_type, mpi_num) = get_mpi_type_and_version(mpi)
+        mpi_ver = compose_version_number(mpi_num)
 
         if (mpi_type == "mpich"):
             if (mpi_ver == ""):
@@ -406,10 +419,11 @@ def make_base_image(machine, mpi, prepend, append, actual):
                 )
 
             else:
-                # else (if version is specified), download the source from website and build           
+                # else (if version is specified), download the source from 
+                # website and build           
                 web_dir = "https://www.mpich.org/static/downloads/" + mpi_ver
 
-                # TODO: Check whether the version is correct and the file exists
+                # TODO: Check if the version is correct and the file exists
 
                 mpi_part = (
                 "# Build MPICH\n"
@@ -428,23 +442,28 @@ def make_base_image(machine, mpi, prepend, append, actual):
 
         elif (mpi_type == "openmpi"):
             if (mpi_ver == ""):
-                # if OpenMPI version is not specified, get the precompiled version
-                mpi_part = (
-                "RUN apt-get install -y libopenmpi-dev\\\n"
-                "    && rm -rf /var/lib/apt\n"
-                )
+                # if OpenMPI version is not specified, get the precompiled 
+                # version
+                #mpi_part = (
+                #"RUN apt-get install -y libopenmpi-dev\\\n"
+                #"    && rm -rf /var/lib/apt\n"
+                #)
+                raise ValueError("OpenMPI version must be specified")
 
             else:
                 # Download the source from OpenMPI website and build
                 # TODO: Check whether the version number is correct
-                # TODO: Make this works for the case where version number is of generic format!
+                # TODO: Make this works for the case where version number is 
+                #       of generic format!
                 #       Convert from string to a list of 3 integers
 
                 int_ver = split_version_number(mpi_ver)
                 ver_dir = "v" + str(int_ver[0]) + "." + str(int_ver[1])
-                web_dir = "https://download.open-mpi.org/release/open-mpi/" + ver_dir
+                web_dir = ("https://download.open-mpi.org/release/open-mpi/" + 
+                    ver_dir)
 
-                # Note: Enable C++ binding when configuring, because some programs use it.
+                # Note: Enable C++ binding when configuring, because some 
+                # programs use it.
                 # ./configure --enable-mpi-cxx
 
                 mpi_part = (
@@ -467,21 +486,27 @@ def make_base_image(machine, mpi, prepend, append, actual):
         else:
             raise ValueError("Unknown MPI target:", mpi)
 
-        docker_target.set_recipe_name("Dockerfile-yandabase-" + mpi)
-        docker_target.set_image_name(prepend + mpi + append)
+        if (isinstance(mpi_num, list)):
+            mpi_name = mpi_type + str(mpi_num[0])
+        else:
+            mpi_name = mpi_type 
+        docker_target.set_recipe_name("Dockerfile-yandabase-" + mpi_name)
+        docker_target.set_image_name(prepend + mpi_name + append)
 
     elif (machine == "galaxy"):
-        # Galaxy (of Pawsey) has Docker image with its MPICH implementation already baked into 
-        # an Ubuntu base.
+        # Galaxy (of Pawsey) has Docker image with its MPICH implementation 
+        # already baked into an Ubuntu base.
         # base_system_part = ("FROM pawsey/mpi-base:latest as buildenv\n")
-        base_system_part = ("FROM pawsey/mpich-base:3.1.4_ubuntu18.04 as buildenv\n")
+        base_system_part = ("FROM pawsey/mpich-base:3.1.4_ubuntu18.04 as " +
+            "buildenv\n")
         docker_target.set_recipe_name("Dockerfile-yandabase-" + machine)
         docker_target.set_image_name(prepend + machine + append)
 
     else:
         raise ValueError("Unknown machine target:", machine)
 
-    docker_target.set_recipe(header + base_system_part + common_top_part + mpi_part + common_bottom_part)
+    docker_target.set_recipe(header + base_system_part + common_top_part + 
+        mpi_part + common_bottom_part)
     docker_target.write_recipe()
 
     # If requested, actually generate the image
@@ -501,8 +526,10 @@ def make_final_image(machine, mpi, prepend, append, base_image, actual):
 
     base_part = ("FROM " + base_image + " as buildenv\n")
 
-    cmake_cxx_flags = "-DCMAKE_CXX_FLAGS=\"" + MPI_COMPILE_FLAGS + "\" -DCMAKE_BUILD_TYPE=Release -DENABLE_OPENMP=YES"
-    cmake_build_flags = "-DBUILD_ANALYSIS=OFF -DBUILD_PIPELINE=OFF -DBUILD_COMPONENTS=OFF -DBUILD_SERVICES=OFF"
+    cmake_cxx_flags = ("-DCMAKE_CXX_FLAGS=\"" + MPI_COMPILE_FLAGS + 
+            "\" -DCMAKE_BUILD_TYPE=Release -DENABLE_OPENMP=YES")
+    cmake_build_flags = ("-DBUILD_ANALYSIS=OFF -DBUILD_PIPELINE=OFF -DBUILD_COMPONENTS=OFF " +
+        "-DBUILD_SERVICES=OFF")
 
     common_part = (
     "# Build LOFAR\n"
@@ -545,9 +572,14 @@ def make_final_image(machine, mpi, prepend, append, base_image, actual):
 
     if machine == "generic":
         docker_target = DockerClass()
-        docker_target.set_recipe_name("Dockerfile-yandasoft-" + mpi)
+        (mpi_type, mpi_num) = get_mpi_type_and_version(mpi)
+        if (isinstance(mpi_num, list)):
+            mpi_name = mpi_type + str(mpi_num[0])
+        else:
+            mpi_name = mpi_type 
+        docker_target.set_recipe_name("Dockerfile-yandasoft-" + mpi_name)
         docker_target.set_recipe(header + base_part + common_part)
-        docker_target.set_image_name(prepend + mpi + append)
+        docker_target.set_image_name(prepend + mpi_name + append)
 
     elif (machine == "galaxy"):
         docker_target = DockerClass()
@@ -583,7 +615,8 @@ def make_batch_file(machine, mpi):
     "#SBATCH --export=NONE\n\n"
     "module load singularity/3.5.0\n")
 
-    (mpi_type, mpi_ver) = get_mpi_type_and_version(mpi)
+    (mpi_type, mpi_num) = get_mpi_type_and_version(mpi)
+    mpi_ver = compose_version_number(mpi_num)
     if (mpi_type == "mpich"):
         module = "mpich/3.3.0"
         image = "yandasoft-mpich_latest.sif"
@@ -625,11 +658,14 @@ def show_targets():
 def main():
     parser = argparse.ArgumentParser(
         description="Make Docker images for various MPI implementations",
-        epilog="The targets can be changed from inside the script (the SETTINGS section)")
-    parser.add_argument('-b', '--base_image', help='Create base image', action='store_true')
-    parser.add_argument('-f', '--final_image', help='Create final image', action='store_true')
-    parser.add_argument('-s', '--show_targets_only', help='Show targets only', action='store_true')
-    #parser.add_argument('-s', '--slurm', help='Create sample batch files for SLURM', action='store_true')
+        epilog="The targets can be changed from inside the script " +
+            "(the SETTINGS section)")
+    parser.add_argument('-b', '--base_image', help='Create base image', 
+        action='store_true')
+    parser.add_argument('-f', '--final_image', help='Create final image', 
+        action='store_true')
+    parser.add_argument('-s', '--show_targets_only', help='Show targets only', 
+        action='store_true')
     args = parser.parse_args()
 
     if args.show_targets_only:
@@ -658,20 +694,23 @@ def main():
     for machine in machine_targets:
         if machine == "generic":
             for mpi in mpi_targets:
-                docker = make_base_image(machine, mpi, base_prepend, base_append, args.base_image)
+                docker = make_base_image(machine, mpi, base_prepend, 
+                    base_append, args.base_image)
                 if docker != None:
-                    docker = make_final_image(machine, mpi, final_prepend, final_append, 
-                        docker.image_name, args.final_image)
+                    docker = make_final_image(machine, mpi, final_prepend, 
+                        final_append, docker.image_name, args.final_image)
                     if docker == None:
-                        raise ValueError("Failed to make final image:", machine, mpi)
+                        raise ValueError("Failed to make final image:", 
+                            machine, mpi)
                 else:
                     raise ValueError("Failed to make base image:", machine, mpi)
         else:
             # Specific machine
-            docker = make_base_image(machine, None, base_prepend, base_append, args.base_image)
+            docker = make_base_image(machine, None, base_prepend, base_append, 
+                args.base_image)
             if docker != None:
-                docker = make_final_image(machine, None, final_prepend, final_append, 
-                    docker.image_name, args.final_image)
+                docker = make_final_image(machine, None, final_prepend, 
+                    final_append, docker.image_name, args.final_image)
                 if docker == None:
                     raise ValueError("Failed to make final image:", machine)
             else:
