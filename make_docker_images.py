@@ -33,8 +33,8 @@
 # Currently, we target generic HPCs and a specific HPC: Galaxy.
 # When a specific machine target is chosen, MPI target is ignored.
 # Choose one or both of this list of target.
-machine_targets = ["generic", "galaxy"]
-# machine_targets = ["generic"]
+# machine_targets = ["generic", "galaxy"]
+machine_targets = ["generic"]
 
 # Set MPI implementations for generic machine in the list below.
 # Note that a specific machine requires no MPI specification.
@@ -48,7 +48,8 @@ machine_targets = ["generic", "galaxy"]
 # using the simplest method (apt-get install).
 # Choose a subset (or all) of this complete list of targets:
 # mpi_targets = ["mpich", "mpich-3.3.2", "openmpi", "openmpi-4.0.5", "openmpi-3.1.6", "openmpi-2.1.6", "openmpi-1.10.7"]
-mpi_targets = ["mpich", "openmpi-4.1.0", "openmpi-3.1.6", "openmpi-2.1.6"]
+# mpi_targets = ["mpich", "openmpi-4.1.0", "openmpi-3.1.6", "openmpi-2.1.6"]
+mpi_targets = ["openmpi-4.1.0"]
 
 git_branch = "develop"
 # git_branch = "master"
@@ -466,7 +467,7 @@ def make_base_image(machine, mpi, prepend, append, actual):
         else:
             raise ValueError("Unknown MPI target:", mpi)
 
-        docker_target.set_recipe_name("Dockerfile-casabase-" + mpi)
+        docker_target.set_recipe_name("Dockerfile-yandabase-" + mpi)
         docker_target.set_image_name(prepend + mpi + append)
 
     elif (machine == "galaxy"):
@@ -474,7 +475,7 @@ def make_base_image(machine, mpi, prepend, append, actual):
         # an Ubuntu base.
         # base_system_part = ("FROM pawsey/mpi-base:latest as buildenv\n")
         base_system_part = ("FROM pawsey/mpich-base:3.1.4_ubuntu18.04 as buildenv\n")
-        docker_target.set_recipe_name("Dockerfile-casabase-" + machine)
+        docker_target.set_recipe_name("Dockerfile-yandabase-" + machine)
         docker_target.set_image_name(prepend + machine + append)
 
     else:
@@ -636,11 +637,10 @@ def main():
         sys.exit(0)
 
     # The common components of image names in DockerHub
+    base_prepend = "csirocass/yandabase:"
     if git_branch == "master":
-        base_prepend = "csirocass/yandabase:"
         final_prepend = "csirocass/yandasoft:"
     else:
-        base_prepend = "csirocass/yandabase:dev-"
         final_prepend = "csirocass/yandasoft:dev-"
     base_append = ""
     final_append = ""
