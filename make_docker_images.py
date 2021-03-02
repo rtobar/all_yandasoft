@@ -33,8 +33,8 @@
 # Currently, we target generic HPCs and a specific HPC: Galaxy.
 # When a specific machine target is chosen, MPI target is ignored.
 # Choose one or both of this list of target.
-# machine_targets = ["generic", "galaxy"]
-machine_targets = ["generic"]
+machine_targets = ["generic", "galaxy"]
+# machine_targets = ["generic"]
 
 # Set MPI implementations for generic machine in the list below.
 # Note that a specific machine requires no MPI specification.
@@ -48,10 +48,11 @@ machine_targets = ["generic"]
 # using the simplest method (apt-get install).
 # Choose a subset (or all) of this complete list of targets:
 # mpi_targets = ["mpich", "mpich-3.3.2", "openmpi", "openmpi-4.0.5", "openmpi-3.1.6", "openmpi-2.1.6", "openmpi-1.10.7"]
-# mpi_targets = ["mpich", "openmpi-4.1.0", "openmpi-3.1.6", "openmpi-2.1.6"]
-mpi_targets = ["openmpi-4.1.0"]
+mpi_targets = ["mpich", "openmpi-3.1.6", "openmpi-2.1.6"]
+# mpi_targets = ["openmpi-4.1.0"]
 
-git_branch = "develop"
+git_branch = "release/1.1.0"
+# git_branch = "develop"
 #git_branch = "master"
 
 casacore_ver = "3.3.0"
@@ -538,7 +539,8 @@ def make_final_image(machine, mpi, prepend, append, base_image, actual):
     "WORKDIR /usr/local/share/LOFAR\n"
     "RUN git clone https://bitbucket.csiro.au/scm/askapsdp/lofar-common.git\n"
     "WORKDIR /usr/local/share/LOFAR/lofar-common\n"
-    "RUN git checkout " + git_branch + "\n"
+    # "RUN git checkout " + git_branch + "\n"
+    "RUN git checkout develop \n"
     "RUN mkdir build\n"
     "WORKDIR /usr/local/share/LOFAR/lofar-common/build\n"
     "RUN cmake " + cmake_cxx_compiler + " " + cmake_cxx_flags + " .. \\\n"
@@ -547,7 +549,8 @@ def make_final_image(machine, mpi, prepend, append, base_image, actual):
     "WORKDIR /usr/local/share/LOFAR\n"
     "RUN git clone https://bitbucket.csiro.au/scm/askapsdp/lofar-blob.git\n"
     "WORKDIR /usr/local/share/LOFAR/lofar-blob\n"
-    "RUN git checkout " + git_branch + "\n"
+    # "RUN git checkout " + git_branch + "\n"
+    "RUN git checkout develop \n"
     "RUN mkdir build\n"
     "WORKDIR /usr/local/share/LOFAR/lofar-blob/build\n"
     "RUN cmake " + cmake_cxx_compiler + " " + cmake_cxx_flags + " .. \\\n"
@@ -559,7 +562,8 @@ def make_final_image(machine, mpi, prepend, append, base_image, actual):
     "RUN git clone https://gitlab.com/ASKAPSDP/all_yandasoft.git\n"
     "WORKDIR /home/all_yandasoft\n"
     # "RUN git checkout -b " + git_branch + "\n"
-    "RUN git checkout " + git_branch + "\n"
+    # "RUN git checkout " + git_branch + "\n"
+    "RUN git checkout develop \n"
     "RUN ./git-do clone\n"
     # "RUN ./git-do checkout -b " + git_branch + "\n"
     "RUN ./git-do checkout " + git_branch + "\n"
@@ -674,7 +678,9 @@ def main():
 
     # The common components of image names in DockerHub
     base_prepend = "csirocass/yandabase:"
-    if git_branch == "master":
+    if git_branch == "release/1.1.0":
+        final_prepend = "csirocass/yandasoft:1.1-"
+    elif git_branch == "master":
         final_prepend = "csirocass/yandasoft:"
     else:
         final_prepend = "csirocass/yandasoft:dev-"
