@@ -33,8 +33,8 @@
 # Currently, we target generic HPCs and a specific HPC: Galaxy.
 # When a specific machine target is chosen, MPI target is ignored.
 # Choose one or both of this list of target.
-machine_targets = ["generic", "galaxy"]
-# machine_targets = ["generic"]
+#machine_targets = ["generic", "galaxy"]
+machine_targets = ["generic"]
 
 # Set MPI implementations for generic machine in the list below.
 # Note that a specific machine requires no MPI specification.
@@ -48,11 +48,11 @@ machine_targets = ["generic", "galaxy"]
 # using the simplest method (apt-get install).
 # Choose a subset (or all) of this complete list of targets:
 # mpi_targets = ["mpich", "mpich-3.3.2", "openmpi", "openmpi-4.0.5", "openmpi-3.1.6", "openmpi-2.1.6", "openmpi-1.10.7"]
-mpi_targets = ["mpich", "openmpi-3.1.6", "openmpi-2.1.6"]
-# mpi_targets = ["openmpi-4.1.0"]
+#mpi_targets = ["mpich", "openmpi-3.1.6", "openmpi-2.1.6"]
+mpi_targets = ["openmpi-3.1.6"]
 
-git_branch = "release/1.1.0"
-# git_branch = "develop"
+#git_branch = "release/1.1.0"
+git_branch = "develop"
 #git_branch = "master"
 
 casacore_ver = "3.3.0"
@@ -161,7 +161,7 @@ class DockerClass:
         elif (self.image_name == ""):
             raise ValueError("Docker image file name has not been set")
         else:
-            return ("docker build -t " + self.image_name + " -f " + 
+            return ("docker build --no-cache --pull -t " + self.image_name + " -f " + 
                 self.recipe_name + " .")
          
     def build_image(self):
